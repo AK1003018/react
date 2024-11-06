@@ -63,6 +63,7 @@ function AutocompleteOverlay({
       sx={{
         overflow: 'auto',
       }}
+      width="auto"
       {...overlayProps}
     >
       {children}
