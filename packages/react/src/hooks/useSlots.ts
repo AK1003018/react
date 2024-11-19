@@ -13,7 +13,7 @@ export type SlotConfig = Record<string, ComponentMatcher | ComponentAndPropsMatc
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Props = any
 
-type SlotElements<Config extends SlotConfig> = {
+export type SlotElements<Config extends SlotConfig> = {
   [Property in keyof Config]: SlotValue<Config, Property>
 }
 

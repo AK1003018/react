@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import Box from '../Box'
 import {useId} from '../hooks/useId'
-import {useSlots} from '../hooks/useSlots'
+import {useSlots, type SlotElements} from '../hooks/useSlots'
 import type {BetterSystemStyleObject, SxProp} from '../sx'
 import sx, {merge} from '../sx'
 import {useTheme} from '../ThemeProvider'
@@ -65,7 +65,12 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
       // description: Description,
     }
 
-    const [partialSlots, childrenWithoutSlots] = useSlots(
+    type CssSlot = Partial<SlotElements<typeof baseSlots & {description: typeof Description}>>
+    type XsSlot = Partial<
+      SlotElements<typeof baseSlots & {blockDescription: typeof Description; inlineDescription: typeof Description}>
+    >
+
+    const [slots, childrenWithoutSlots] = useSlots(
       props.children,
       enabled
         ? {...baseSlots, description: Description}
@@ -76,7 +81,7 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
           },
     )
 
-    const slots = {blockDescription: undefined, inlineDescription: undefined, description: undefined, ...partialSlots}
+    const isCssModule = (_slots: CssSlot | XsSlot): _slots is CssSlot => enabled
 
     // slots.description = slots.inlineDescription ?? slots.blockDescription
 
@@ -324,10 +329,10 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
       'data-loading': loading && !inactive ? true : undefined,
       tabIndex: disabled || showInactiveIndicator ? undefined : 0,
       'aria-labelledby': `${labelId} ${slots.trailingVisual ? trailingVisualId : ''} ${
-        slots.inlineDescription ? inlineDescriptionId : ''
+        slots.inlineDescription ? inlineDescriptionId : '' // needs to be fixed, slots.inlineDescription might be undefined
       }`,
       'aria-describedby':
-        [slots.blockDescription ? blockDescriptionId : undefined, inactiveWarningId ?? undefined]
+        [slots.blockDescription ? blockDescriptionId : undefined, inactiveWarningId ?? undefined] // needs to be fixed, slots.blockDescription might be undefined
           .filter(String)
           .join(' ')
           .trim() || undefined,
@@ -358,7 +363,7 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
       wrapperProps = _PrivateItemWrapper ? menuItemProps : {}
     }
 
-    if (enabled) {
+    if (isCssModule(slots)) {
       // if (sxProp !== defaultSxProp) {
       //   return ()
 
@@ -507,7 +512,7 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
                   </Box>
                   {slots.inlineDescription}
 
-                  {slots.description && React.cloneElement(slots.description, {variant: 'inline'})}
+                  {/* {slots.description && React.cloneElement(slots.description, {variant: 'inline'})} */}
                 </ConditionalWrapper>
                 <VisualOrIndicator
                   inactiveText={showInactiveIndicator ? inactiveText : undefined}
@@ -537,7 +542,7 @@ export const Item = React.forwardRef<HTMLLIElement, ActionListItemProps>(
                 ) : null
               }
               {slots.blockDescription}
-              {slots.description && React.cloneElement(slots.description, {variant: 'block'})}
+              {/* {slots.description && React.cloneElement(slots.description, {variant: 'block'})} */}
             </Box>
           </ItemWrapper>
           {!inactive && !loading && !menuContext && Boolean(slots.trailingAction) && slots.trailingAction}
